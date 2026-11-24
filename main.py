@@ -17,7 +17,7 @@ def hello():
 # вункция проверки базы данных
 def check_library():
     global id, book
-    with open('library.txt', 'r') as f:
+    with open('library.txt', 'r', encoding='cp1251') as f:
         for line in f.readlines():
             a = line.split(',')
             if len(a) > 1:
