@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Моя библиотека</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6fa;color:#17243a;font:15px system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:34px 20px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}h1{font-size:32px;margin:0}p{color:#66758a}button,.btn{border:0;border-radius:8px;padding:11px 16px;background:#315bd4;color:white;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}button:hover,.btn:hover{filter:brightness(.92)}.secondary{background:#e8edf6;color:#263c61}.danger{background:#fff0ef;color:#ab322c}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}.stat,.panel,dialog{background:white;border:1px solid #dfe5ef;border-radius:12px;padding:20px}.stat strong{display:block;font-size:29px;margin-top:6px}.stat span{color:#66758a}.toolbar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}.toolbar input{flex:1;min-width:160px}input,select{border:1px solid #ccd5e4;border-radius:8px;padding:10px;font:inherit;background:white;color:inherit}table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:13px 10px;border-bottom:1px solid #e6ebf2}th{color:#66758a;font-size:13px}td form{display:inline-flex;gap:5px;align-items:center;flex-wrap:wrap}.scroll{overflow-x:auto}.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#e2f4e9;color:#16603d;white-space:nowrap}.issued{background:#fff0d8;color:#86510c}dialog{width:min(450px,94vw);box-shadow:0 12px 70px #17243a40}dialog::backdrop{background:#17243a80}dialog label{display:grid;gap:6px;margin:14px 0}.error{padding:12px;background:#fff0ef;color:#a02c24;border-radius:8px;margin-bottom:16px}@media(max-width:600px){.stat{padding:12px}.stat strong{font-size:23px}main{padding:20px 12px}}
+</style>
+</head>
+<body><main>
+<header><div><h1>Моя библиотека</h1><p>Управление коллекцией книг</p></div><button onclick="document.getElementById('add').showModal()">+ Добавить книгу</button></header>
+<section class="stats"><div class="stat"><span>Всего книг</span><strong>{{ total }}</strong></div><div class="stat"><span>В наличии</span><strong>{{ available }}</strong></div><div class="stat"><span>Выдано</span><strong>{{ total - available }}</strong></div></section>
+<section class="panel">
+{% if error %}<div class="error" role="alert">{{ error }}</div>{% endif %}
+<form class="toolbar" method="get"><input name="q" value="{{ q }}" placeholder="Название, автор или год" aria-label="Поиск книг"><button>Найти</button><a class="btn secondary" href="{{ url_for('index') }}">Все книги</a></form>
+<div class="scroll"><table><thead><tr><th>ID</th><th>Название</th><th>Автор</th><th>Год</th><th>Статус</th><th>Действия</th></tr></thead><tbody>
+{% for book in books %}
+<tr><td>{{ book.id }}</td><td><strong>{{ book['описание'] }}</strong></td><td>{{ book['автор'] }}</td><td>{{ book['год издания'] }}</td><td><span class="pill {% if book['статус']|lower == 'выдана' %}issued{% endif %}">{{ book['статус']|capitalize }}</span></td><td>
+<form method="post" action="{{ url_for('status', book_id=book.id) }}"><input type="hidden" name="q" value="{{ q }}"><select name="status" aria-label="Новый статус">{% for s in statuses %}<option {% if s|lower == book['статус']|lower %}selected{% endif %}>{{ s }}</option>{% endfor %}</select><button class="secondary">Изменить</button></form>
+<form method="post" action="{{ url_for('delete', book_id=book.id) }}" onsubmit="return confirm('Удалить эту книгу?')"><input type="hidden" name="q" value="{{ q }}"><button class="danger">Удалить</button></form>
+</td></tr>
+{% else %}<tr><td colspan="6">Книги не найдены.</td></tr>{% endfor %}
+</tbody></table></div></section>
+<dialog id="add"><h2>Новая книга</h2><form method="post" action="{{ url_for('add') }}"><label>Название<input name="title" required></label><label>Автор<input name="author" required></label><label>Год издания<input name="year" type="number" min="1" max="9999" required></label><button>Сохранить</button> <button type="button" class="secondary" onclick="document.getElementById('add').close()">Отмена</button></form></dialog>
+</main></body></html>
